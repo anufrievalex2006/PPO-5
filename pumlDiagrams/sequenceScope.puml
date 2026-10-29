@@ -9,8 +9,10 @@ participant Retryer as ret
 observer -> cache: build() => Mutation1
 cache -> mut1: Создает мутацию, кладет ее в #scopes["demo"]
 observer -> mut1: execute()
-mut1 -> cache: canRun(m1)
-cache --> mut1: true (pending-мутаций сейчас нет)
+mut1 -> ret: canStart()
+ret -> cache: canRun(m1)
+cache --> ret: true (pending-мутаций сейчас нет)
+ret --> mut1: true
 mut1 -> mut1: #dispatch(pending, isPaused: false)
 mut1 -> ret: start()
 ret -> cache: canRun(m1)
@@ -23,8 +25,10 @@ end note
 observer -> cache: build() => Mutation2
 cache -> mut2: Создает мутацию, кладет ее туда же
 observer -> mut2: execute()
-mut2 -> cache: canRun(m2)
-cache --> mut2: false (pending-мутация есть, и это Mutation1)
+mut2 -> ret: canStart()
+ret -> cache: canRun(m2)
+cache --> ret: false (pending-мутация есть, и это Mutation1)
+ret --> mut2: false
 mut2 -> mut2: #dispatch(pending, isPaused: true)
 mut2 -> ret: start()
 ret -> cache: canRun(m2)
@@ -43,7 +47,7 @@ cache -> mut2: continue() (в scope нашел первую мутацию НА 
 mut2 -> ret: continue()
 ret -> cache: canRun(m2)
 cache --> ret: true (pending-мутация - это Mutation2)
-mut2 -> mut2: #dispatch(continue)
+ret -> mut2: onContinue -> #dispatch(continue)
 note right of ret
     Запускаем mutationFn второй мутации!
 end note

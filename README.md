@@ -1,36 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Демо-проект к домашнему заданию №5 по проектированию ПО
+Демонстрация механизма мутации в TanStack Query
 
-## Getting Started
+**Автор**: Ануфриев Александр
 
-First, run the development server:
+**Исследуемая библиотека**: TanStack Query v5.104.5
 
+**Репозиторий библиотеки**: https://github.com/tanstack/query
+
+Тег - `@tanstack/react-query@5.104.5`
+
+Коммит - `a8ecc8d42f82c795fbe5771be5e41dee54bd7e34`
+
+*P.S. Код `query-core` читался из этого же коммита*
+
+**Исследуемый механизм**: Мутации (useMutation -> MutationObserver -> Mutation/MutationCache -> Retryer), включая колбэки, повторы и scope
+
+## Запуск проекта
+
+Требования: Node.js 22.x
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
+Проект будет доступен по ссылке: http://localhost:3000
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Что есть в проекте
+- Кнопка отправки мутации с логами колбэков в консоли
+- Сценарии:
+    1. Успех
+    2. Ошибка с 2 повторами
+    3. Размонтирование компонента до ответа
+    4. Две мутации подряд (и со scope, и без него)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Использование ИИ
+Использовался Claude.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Для каких частей:
+- Выбор механизма, определение плана работы
+- Объяснение устройства мутаций
+- Поиск нужных файлов и участков исходного кода
+- Подготовка эксперимента
+- Проверка и правки диаграмм последовательностей, классов, пакетов
+- Структура презентации
 
-## Learn More
+Что создано/переработано с помощью ИИ:
+- Переработана диаграмма пакетов (черновик составил сам, а ИИ помог сверить зависимости)
+- Переработана диаграмма классов (ИИ проверял и правил ошибочные места)
+- Черновики диаграмм последовательностей подготовлены совместно с ИИ и были сверены с исходным кодом
+- Предложения от ИИ в плане экспериментов (что и где отслеживать) - непосредственно сам процесс отслеживания и вывод результатов на **мне**.
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Как велась проверка:
+- Утверждения ИИ о коде сверялись с исходным кодом библиотеки (тег - `@tanstack/react-query@5.104.5`)
+- Выполнение прослеживалось отладчиком в браузере через брейкпоинты и логи в консоли
+- Зависимости пакетов проверялись по их package.json
+- В отдельном Word-документе зафиксированы результаты четырех экспериментов (см. `Наблюдения для ДЗ 5.docx`)
+- По коду исправлялись ошибки и неточности ИИ
