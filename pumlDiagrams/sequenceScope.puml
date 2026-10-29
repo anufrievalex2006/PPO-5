@@ -1,0 +1,50 @@
+@startuml Sequence_Scope
+participant MutationObserver as observer
+participant MutationCache as cache
+participant "Mutation 1" as mut1
+participant "Mutation 2" as mut2
+participant Retryer as ret
+
+==Запускаем первую мутацию==
+observer -> cache: build() => Mutation1
+cache -> mut1: Создает мутацию, кладет ее в #scopes["demo"]
+observer -> mut1: execute()
+mut1 -> cache: canRun(m1)
+cache --> mut1: true (pending-мутаций сейчас нет)
+mut1 -> mut1: #dispatch(pending, isPaused: false)
+mut1 -> ret: start()
+ret -> cache: canRun(m1)
+cache --> ret: true
+note right of ret
+    Запускаем mutationFn первой мутации!
+end note
+
+==Запускаем вторую мутацию, первая работает==
+observer -> cache: build() => Mutation2
+cache -> mut2: Создает мутацию, кладет ее туда же
+observer -> mut2: execute()
+mut2 -> cache: canRun(m2)
+cache --> mut2: false (pending-мутация есть, и это Mutation1)
+mut2 -> mut2: #dispatch(pending, isPaused: true)
+mut2 -> ret: start()
+ret -> cache: canRun(m2)
+cache --> ret: false
+ret -> mut2: onPause -> #dispatch(pause)
+note right of mut2
+    Статус остается Pending, ожидание выражается
+    флагом isPaused
+end note
+
+== Будим вторую мутацию, первая завершилась ==
+ret --> mut1: mutationFn вернула данные
+mut1 -> mut1: #dispatch(success)
+mut1 -> cache: runNext(m1)
+cache -> mut2: continue() (в scope нашел первую мутацию НА ПАУЗЕ)
+mut2 -> ret: continue()
+ret -> cache: canRun(m2)
+cache --> ret: true (pending-мутация - это Mutation2)
+mut2 -> mut2: #dispatch(continue)
+note right of ret
+    Запускаем mutationFn второй мутации!
+end note
+@enduml

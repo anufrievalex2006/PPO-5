@@ -1,69 +1,100 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client';
+
+import { Box, Button, Group, Text, Title } from "@mantine/core";
+import { useMutation } from "@tanstack/react-query";
+import { useState } from "react";
+
+const log = (msg: string) => console.log(`${(performance.now() / 1000).toFixed(2)}s ${msg}`);
+
+interface CustomMessage {
+	title: string,
+	fail: boolean
+}
+
+interface PanelProps {
+	onHide: () => void;
+}
+
+const MutationPanel = ({onHide}: PanelProps) => {
+	const mut = useMutation({
+		mutationFn: async (v: CustomMessage) => {
+			log("3. mutationFn работаем с " + v.title);
+			await new Promise(r => setTimeout(r, 1000));
+			if (v.fail)
+				throw new Error("бомба");
+			return {
+				id: 1,
+				title: v.title
+			}
+		},
+		onMutate: () => {
+			log("2. onMutate опции");
+			return {
+				snapshot: "ctx"
+			};
+		},
+		onSuccess: () => log("4. onSuccess опции"),
+		onError: () => log("4. onError опции"),
+		onSettled: () => log("5. onSettled опции"),
+		retry: 2,
+		retryDelay: 500,
+		scope: {
+			id: "demo"
+		}
+	});
+
+	const onSend = (fail: boolean) => mut.mutate({
+		title: "hello worl",
+		fail
+	}, {
+		onSuccess: () => log("6. onSuccess percall"),
+		onError: () => log("6. onError percall"),
+		onSettled: () => log("7. onSettled percall")
+	});
+
+	const onSendHide = () => {
+		onSend(false);
+		setTimeout(onHide, 200);
+	}
+
+	const onSendTwo = () => {
+		mut.mutate({
+			title: "первый",
+			fail: false
+		});
+		mut.mutate({
+			title: "второй",
+			fail: false
+		});
+	}
+
+	return (
+		<Box p={60}>
+			<Group gap="md">
+				<Button color="green" onClick={() => onSend(false)}>Отправить без провалов</Button>
+				<Button color="red" onClick={() => onSend(true)}>Отправить провал</Button>
+			</Group>
+			<Group gap="md" mt="md">
+				<Button color="pink" onClick={onSendHide}>Отправить со скрытием</Button>
+				<Button color="orange" onClick={onSendTwo}>Отправить 2x</Button>
+			</Group>
+			<Title order={4}>Статус: {mut.status}</Title>
+			<Text c="red" fw={700} size="lg">JSON данные: {JSON.stringify(mut.data)}</Text>
+			<Text c="blue" fw={700} size="xl">Счетчик провалов (failureCount) = {mut.failureCount}</Text>
+		</Box>
+	);
+}
 
 export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>
-            To get started, edit the{" "}
-            <code className={styles.code}>page.tsx</code> file.
-          </h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
+	const [show, setShow] = useState(true);
+	return (
+		<Box p={20}>
+			<Button onClick={() => setShow(x => !x)}>
+				{show ? "Скрыть" : "Показать"}
+			</Button>
+			{show && (
+				<MutationPanel onHide={() => setShow(false)}></MutationPanel>
+			)}
+		</Box>
+	)
 }

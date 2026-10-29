@@ -1,0 +1,49 @@
+@startuml Packages
+left to right direction
+package "query-core" as P1 {
+    package "Мутации" as P1a {
+        class Mutation
+        class MutationCache
+        class MutationObserver
+    }
+    package "Общая инфраструктура" as P1b {
+        interface Retryer
+        class notifyManager <<singleton>>
+        abstract class Removable
+        class "Subscribable<TListener>"
+    }
+}
+package "react-query" as P2 {
+    class useMutation <<hook>>
+    class useMutationState <<hook>>
+    class QueryClientProvider <<component>>
+}
+package "react-query-devtools" as P3 {}
+package "solid-query" as P4 {}
+package "vue-query" as P5 {}
+package "query-devtools" as P6 {}
+package "query-persist-client-core" as P7 {}
+package "react-query-persist-client" as P8 {}
+
+P2 ..> P1 : <<import>>
+P4 ..> P1 : <<import>>
+P5 ..> P1 : <<import>>
+P6 ..> P1 : <<import>>
+P7 ..> P1 : <<import>>
+
+P3 ..> P6 : <<import>>
+P3 ..> P2 : <<peer>>
+P8 ..> P7 : <<import>>
+P8 ..> P2 : <<peer>>
+
+P1a ..> P1b : <<use>>
+
+useMutation ..> MutationObserver : <<create>>
+useMutationState ..> MutationCache : <<read>>
+
+note top of P1
+    Показаны пакеты, связанные с мутациями.
+    Были опущены: Angular, Preact, Svelte, Lit, персистеры хранилищ
+    и вспомогательные пакеты
+end note
+@enduml
