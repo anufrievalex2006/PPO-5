@@ -1,5 +1,4 @@
 @startuml Packages
-left to right direction
 package "query-core" as P1 {
     package "Мутации" as P1a {
         class Mutation

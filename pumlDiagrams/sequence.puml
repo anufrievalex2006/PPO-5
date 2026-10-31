@@ -24,12 +24,20 @@ mut -> retryer: start()
 retryer -> fn: fn()
 fn --> retryer: data
 retryer --> mut: resolve
+note right of mut
+    Порядок выполнения колбэков (все с await):
+    1. cache.onSuccess/onError (в зависимости от успеха мутации)
+    2. options.onSuccess/onError (в зависимости от успеха мутации)
+    3. cache.onSettled
+    4. options.onSettled
+end note
 mut -> mut: #dispatch(success)
 mut --> observer: onMutationUpdate(action)
 observer -> observer: #updateResult()
 observer -> observer: #notify(action)
 observer --> hook: listener(result)
 hook -> React: Перерисовать компонент
+mut -> cache: runNext(this) (в блоке finally)
 
 note over observer, hook
     Слушатели вызываются после каждого #notify: как для
