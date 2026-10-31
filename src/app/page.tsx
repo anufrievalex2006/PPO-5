@@ -8,7 +8,8 @@ const log = (msg: string) => console.log(`${(performance.now() / 1000).toFixed(2
 
 interface CustomMessage {
 	title: string,
-	fail: boolean
+	fail: boolean,
+	hang?: boolean
 }
 
 interface PanelProps {
@@ -22,6 +23,8 @@ const MutationPanel = ({onHide}: PanelProps) => {
 			await new Promise(r => setTimeout(r, 1000));
 			if (v.fail)
 				throw new Error("бомба");
+			if (v.hang)
+				return new Promise(() => {});
 			return {
 				id: 1,
 				title: v.title
@@ -57,10 +60,11 @@ const MutationPanel = ({onHide}: PanelProps) => {
 		setTimeout(onHide, 200);
 	}
 
-	const onSendTwo = () => {
+	const onSendTwo = (hang: boolean) => {
 		mut.mutate({
 			title: "первый",
-			fail: false
+			fail: false,
+			hang
 		});
 		mut.mutate({
 			title: "второй",
@@ -76,7 +80,8 @@ const MutationPanel = ({onHide}: PanelProps) => {
 			</Group>
 			<Group gap="md" mt="md">
 				<Button color="pink" onClick={onSendHide}>Отправить со скрытием</Button>
-				<Button color="orange" onClick={onSendTwo}>Отправить 2x</Button>
+				<Button color="orange" onClick={() => onSendTwo(false)}>Отправить 2x</Button>
+				<Button color="red" onClick={() => onSendTwo(true)}>Отправить 2x с тормозом</Button>
 			</Group>
 			<Title order={4}>Статус: {mut.status}</Title>
 			<Text c="red" fw={700} size="lg">JSON данные: {JSON.stringify(mut.data)}</Text>
