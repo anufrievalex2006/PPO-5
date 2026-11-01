@@ -80,10 +80,11 @@ const MutationPanel = ({onHide}: PanelProps) => {
 			</Group>
 			<Group gap="md" mt="md">
 				<Button color="pink" onClick={onSendHide}>Отправить со скрытием</Button>
-				<Button color="orange" onClick={() => onSendTwo(false)}>Отправить 2x</Button>
-				<Button color="red" onClick={() => onSendTwo(true)}>Отправить 2x с тормозом</Button>
+				<Button color="orange" onClick={() => onSendTwo(false)}>Отправить 2 мутации</Button>
+				<Button color="red" onClick={() => onSendTwo(true)}>Отправить 2 мутации с тормозом</Button>
 			</Group>
 			<Title order={4}>Статус: {mut.status}</Title>
+			<Title order={4}>isPaused: {mut.isPaused}</Title>
 			<Text c="red" fw={700} size="lg">JSON данные: {JSON.stringify(mut.data)}</Text>
 			<Text c="blue" fw={700} size="xl">Счетчик провалов (failureCount) = {mut.failureCount}</Text>
 		</Box>

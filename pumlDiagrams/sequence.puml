@@ -12,7 +12,7 @@ btn -> hook: mutate(vars)
 hook -> observer: mutate(vars, options)
 observer -> cache: build(client, options)
 cache -> mut: new Mutation(...)
-cache -> mut: add(mutation)
+cache -> cache: add(mutation)
 observer -> mut: addObserver(this)
 observer -> mut: execute(vars)
 mut -> retryer: createRetryer(config)
@@ -40,7 +40,9 @@ hook -> React: Перерисовать компонент
 mut -> cache: runNext(this) (в блоке finally)
 
 note over observer, hook
-    Слушатели вызываются после каждого #notify: как для
-    статуса Pending, так и для Success
+    #notify вызывает сначала колбэки из mutate(...) (только
+    для success/error), затем слушателей. Для Pending
+    колбэки из mutate(...) не вызываются, но слушатели
+    уведомляются.
 end note
 @enduml
